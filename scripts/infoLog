@@ -1,0 +1,21 @@
+#!/bin/bash
+{
+    varDate=$(date)
+    user=$(whoami)
+    rootDir=$(pwd)
+    
+    echo "Enter your name and press[ENTER]"
+    read author
+    echo "Enter a comment and press[ENTER]"
+    read comment
+    
+    text="Date: ${varDate} \nUser: $user \t Author: $author \nRoot Directory: $rootDir \n\n\t Comment: $comment \n"
+
+    if [ -a "INFO.log" ]
+    then
+	sed -i "1i$text " INFO.log
+    else
+	printf 'INIT' > INFO.log 
+	sed -i "1i$text " INFO.log
+    fi
+}

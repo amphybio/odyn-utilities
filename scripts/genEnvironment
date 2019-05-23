@@ -1,0 +1,128 @@
+#!/bin/bash
+
+#===============================================================================
+#
+#          FILE:  test.sh
+#
+#         USAGE:  ./test.sh
+#
+#   DESCRIPTION:
+#
+#       OPTIONS:  ---
+#  REQUIREMENTS:  ---
+#          BUGS:  ---
+#         NOTES:  ---
+#        AUTHOR:  Joe Brockmeier, jzb@zonker.net
+#       COMPANY:  Dissociated Press
+#       VERSION:  1.0
+#       CREATED:  05/25/2007 10:31:01 PM MDT
+#      REVISION:  ---
+#===============================================================================
+#
+#programname=$0
+#
+#function usage {
+#    echo "usage: $programname [-abch] [-f infile] [-o outfile]"
+#    echo "  -a      turn on feature a"
+#    echo "  -b      turn on feature b"
+#    echo "  -c      turn on feature c"
+#    echo "  -h      display help"
+#    echo "  -f infile   specify input file infile"
+#    echo "  -o outfile  specify output file outfile"
+#    exit 1
+#}
+#
+#usage
+
+{
+ 
+clean()
+{
+   rm -rf ./"$1"/dist.fsod
+}
+
+genInput()
+{
+    dist=$1
+    edge=$2
+    execType=$3
+    ratio=$4
+
+    path="./../../../Util/"
+   
+    cp "$path"par.in "$path"par_.in
+    sed -i "s/edge=0/edge=$edge/" "$path"par_.in
+    sed -i "s/dist=0 2 1/dist=${dist:0:1} ${dist:1:1} ${dist:2:1}/" "$path"par_.in
+
+    if [ "$execType" == "synt" ]
+    then
+	aux=$(awk "BEGIN {print 0.01 * $ratio}")
+	sed -i "s/synt=0.1 0.1/synt=0.1 $aux/" "$path"par_.in
+	mv "$path"par_.in ./"$ratio"/par_"$dist"_"$edge"_"$ratio".in
+    elif [ "$execType" == "degr" ]
+    then
+	aux=$(awk "BEGIN {print 0.001 * $ratio}")
+	sed -i "s/degr=0.01 0.01/degr=$aux 0.01/" "$path"par_.in
+	mv "$path"par_.in ./"$ratio"/par_"$dist"_"$edge"_"$ratio".in
+    else
+    	mv "$path"par_.in ./par_"$dist"_"$edge".in
+    fi 
+}
+
+genDir() # arg[1]= dist.fsod | arg[2] = execution type (synt;degr;deft)| arg[3] = list of ratios
+{
+    while read line
+    do
+	dirDist=$line	#Directory represents the distance
+	mkdir "$dirDist"
+	cd ./"$dirDist"/
+	read line
+	edges=$line
+	read line
+	listRatios=$line
+    	for edge in $edges	
+	do
+	    mkdir $edge		#Directory represents the edge type
+	    cd ./$edge/
+	    if [ "$2" == "deft" ]
+	    then
+		mkdir outputs logs
+		genInput "$dirDist" "$edge" "$2"		
+	    else
+	   	for ratio in $listRatios
+		do
+		    mkdir $ratio
+		    mkdir ./$ratio/outputs ./$ratio/logs
+		    genInput "$dirDist" "$edge" "$2" "$ratio"
+		done
+	    fi
+	    cd ./../
+	done
+	rm -rf "$dirDist"
+	cd ./../
+    done <  $1
+    mkdir ./"$2"/
+    shopt -s extglob
+    $(mv !(*deft|synt|degr|INFO.log*) ./"$2"/)
+    shopt -u extglob;
+}
+
+    fileStruct=$1			#File with structure
+    dirEnv=$(awk NR==1 "$fileStruct")	#Name directory results 
+    execType=$(awk NR==3 "$fileStruct")
+    
+    if [ ! -d ./../"$dirEnv" ]
+    then
+	mkdir ./../"$dirEnv"/ 
+    fi
+    
+    awk "NR>3" "$fileStruct" > ./../"$dirEnv"/dist.fsod #File just with distances and edges
+
+    cd ./../"$dirEnv"/
+    ./../Util/infoLog
+    cp ./../Util/"$fileStruct" ./
+
+    genDir "dist.fsod" "$execType"
+
+    clean "$execType"    
+}

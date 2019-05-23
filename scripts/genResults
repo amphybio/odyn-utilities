@@ -1,0 +1,84 @@
+#!/bin/bash
+
+#===============================================================================
+#
+#          FILE:  test.sh
+#
+#         USAGE:  ./test.sh
+#
+#   DESCRIPTION:
+#
+#       OPTIONS:  ---
+#  REQUIREMENTS:  ---
+#          BUGS:  ---
+#         NOTES:  ---
+#        AUTHOR:  Joe Brockmeier, jzb@zonker.net
+#       COMPANY:  Dissociated Press
+#       VERSION:  1.0
+#       CREATED:  05/25/2007 10:31:01 PM MDT
+#      REVISION:  ---
+#===============================================================================
+{
+clean()
+{
+   rm -rf dist.fsod
+}
+    fileStruct=$1
+    dirEnv=$(awk NR==1 "$fileStruct")
+    num=($(awk NR==2 "$fileStruct"))
+    numExec=${num[0]}
+    increment=${num[1]}
+    execType=$(awk NR==3 "$fileStruct")
+    
+    awk "NR>3" "$fileStruct" > dist.fsod 
+    
+    cd ./../"$dirEnv"/
+    ./../Util/infoLog
+    cd ./../Util/
+    
+    while read line
+    do
+        dist=$line
+	read line
+        edges=$line
+	read line
+        pathShort="./../$dirEnv/$execType/"
+        if [ "$execType" == "deft" ]
+        then
+	    for edge in $edges
+            do
+                pathLong="$pathShort$dist/$edge/"
+                for (( i=1; i<="$numExec"; i+="$increment"))
+                do
+                    for (( j=i; j<i+"$increment"; j++))
+                    do
+                        ./odyn -o b -i -s "$pathLong"par_"$dist"_"$edge".in par_"$execType"_"$dist"_"$edge"_"$j".out "$pathLong"logs/par_"$execType"_"$dist"_"$edge"_"$j".log &
+                        sleep 5s
+                    done
+                    wait
+                    mv *par_"$execType"_"$dist"_"$edge"_*.out ./"$pathLong"/outputs/
+                done
+            done
+        else
+            listRatios=$(sed -n "/$dist/{n;n;p}" "$pathShort$dirEnv"_"$execType.fsod" )
+            for edge in $edges
+            do
+                pathLong="$pathShort$dist/$edge/"
+                for ratio in $listRatios
+                do
+                    for (( i=1; i<="$numExec"; i+="$increment"))
+                    do
+                        for (( j=i; j<i+"$increment"; j++))
+                        do
+                            ./odyn -o b -i -s "$pathLong$ratio/"par_"$dist"_"$edge"_"$ratio".in  par_"$execType"_"$dist"_"$edge"_"$ratio"_"$j".out  "$pathLong$ratio/logs/"par_"$execType"_"$dist"_"$edge"_"$ratio"_"$j".log &
+                            sleep 5s
+                        done
+                        wait
+                        mv *par_"$execType"_"$dist"_"$edge"_"$ratio"_*.out ./"$pathLong$ratio"/outputs/
+                    done
+                done
+            done
+        fi
+    done < "dist.fsod"
+    clean
+}

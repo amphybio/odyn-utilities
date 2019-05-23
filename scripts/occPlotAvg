@@ -1,0 +1,7 @@
+#!/bin/bash
+{
+    IN="$1".out
+    OUT="$1".eps
+    gnuplot -e "inputfile='$IN'; outputfile='$OUT';" occupancyErrAvg.plt
+}
+

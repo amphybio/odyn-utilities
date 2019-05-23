@@ -1,0 +1,80 @@
+#!/bin/bash
+
+#===============================================================================
+#
+#          FILE:  test.sh
+#
+#         USAGE:  ./test.sh
+#
+#   DESCRIPTION:
+#
+#       OPTIONS:  ---
+#  REQUIREMENTS:  ---
+#          BUGS:  ---
+#         NOTES:  ---
+#        AUTHOR:  Joe Brockmeier, jzb@zonker.net
+#       COMPANY:  Dissociated Press
+#       VERSION:  1.0
+#       CREATED:  05/25/2007 10:31:01 PM MDT
+#      REVISION:  ---
+#===============================================================================
+
+{
+clean()
+{
+   rm -rf dist.fsod
+}
+
+genOccPlot()
+{
+    IN="$1".out
+    OUT="$1".eps
+    gnuplot -e "inputfile='$IN'; outputfile='$OUT';" occupancyErrAvg.plt
+}
+    fileStruct=$1
+    dirEnv=$(awk NR==1 "$fileStruct")	
+    execType=$(awk NR==3 "$fileStruct")
+
+    awk "NR>3" "$fileStruct" > ./dist.fsod
+
+    cd ./../"$dirEnv"/
+    ./../Util/infoLog
+    cp ./../Util/"$fileStruct" ./
+    cd ./../Util/
+   
+    while read line
+    do
+        dist=$line
+	read line
+        edges=$line
+	read line
+	listRatios=$line
+       
+        for edge in $edges
+        do
+	    pathShort="./../$dirEnv/$execType/$dist/$edge"
+	    if [ "$execType" == "deft" ]
+            then
+		#GRAFICO
+		pathLong="$pathShort/outputs/"
+		firstFile=$(ls "$pathLong"Opar* | sort -n | head -1)
+		rm -rf "$pathLong"*statOcc*
+		numFiles=$(ls -dq "$pathLong"Opar* | wc -l)
+		Rscript avrAndstdOcc.r "$firstFile" "$numFiles"
+		statFile=$(ls "$pathLong"*statOcc* | head -1)
+		statFile=${statFile%.out}
+		genOccPlot "$statFile"
+		mv "$statFile".eps "$pathShort"
+		#IMAGEM
+		#GIF
+	    else
+		for ratio in $listRatios
+		do
+		    pathLong="$pathShort/$ratio/outputs/"
+		    #Faz o q tem q fazer de calculo
+		done
+	   fi
+	done
+    done < "dist.fsod"
+    clean
+}
