@@ -42,43 +42,43 @@ clean()
 	read line
         edges=$line
 	read line
-        pathShort="./../$dirEnv/$execType/"
-        if [ "$execType" == "deft" ]
-        then
-	    for edge in $edges
-            do
-                pathLong="$pathShort$dist/$edge/"
+        pathShort="./../$dirEnv/$execType/"      
+	for edge in $edges
+	do
+            pathLong="$pathShort$dist/$edge/"
+	    if [ "$execType" == "deft" ]
+	    then
                 for (( i=1; i<="$numExec"; i+="$increment"))
                 do
-                    for (( j=i; j<i+"$increment"; j++))
-                    do
+		    for (( j=i; j<i+"$increment"; j++))
+		    do
                         ./odyn -o b -i -s "$pathLong"par_"$dist"_"$edge".in par_"$execType"_"$dist"_"$edge"_"$j".out "$pathLong"logs/par_"$execType"_"$dist"_"$edge"_"$j".log &
-                        sleep 5s
-                    done
-                    wait
+			sleep 5s
+		    done
+		    wait
+	            ./genAnimation Hpar_"$execType"_"$dist"_"$edge"_"$i"
                     mv *par_"$execType"_"$dist"_"$edge"_*.out ./"$pathLong"/outputs/
-                done
-            done
-        else
-            listRatios=$(sed -n "/$dist/{n;n;p}" "$pathShort$dirEnv"_"$execType.fsod" )
-            for edge in $edges
-            do
-                pathLong="$pathShort$dist/$edge/"
-                for ratio in $listRatios
-                do
+	            mv Hpar*.gif ./"$pathLong"/animation
+		done
+	    else
+		listRatios=$(sed -n "/$dist/{n;n;p}" "$pathShort$dirEnv"_"$execType.fsod" )
+	        for ratio in $listRatios
+		do
                     for (( i=1; i<="$numExec"; i+="$increment"))
-                    do
-                        for (( j=i; j<i+"$increment"; j++))
-                        do
-                            ./odyn -o b -i -s "$pathLong$ratio/"par_"$dist"_"$edge"_"$ratio".in  par_"$execType"_"$dist"_"$edge"_"$ratio"_"$j".out  "$pathLong$ratio/logs/"par_"$execType"_"$dist"_"$edge"_"$ratio"_"$j".log &
-                            sleep 5s
-                        done
-                        wait
-                        mv *par_"$execType"_"$dist"_"$edge"_"$ratio"_*.out ./"$pathLong$ratio"/outputs/
-                    done
-                done
-            done
-        fi
+		    do
+			for (( j=i; j<i+"$increment"; j++))
+			do
+			    ./odyn -o b -i -s "$pathLong$ratio/"par_"$dist"_"$edge"_"$ratio".in  par_"$execType"_"$dist"_"$edge"_"$ratio"_"$j".out  "$pathLong$ratio/logs/"par_"$execType"_"$dist"_"$edge"_"$ratio"_"$j".log &
+			    sleep 5s
+			done
+			wait
+			./genAnimation Hpar_"$execType"_"$dist"_"$edge"_"$ratio"_"$i"
+			mv *par_"$execType"_"$dist"_"$edge"_"$ratio"_*.out ./"$pathLong$ratio"/outputs/
+			mv Hpar*.gif ./"$pathLong"/animation
+		    done
+		done
+	    fi
+	done
     done < "dist.fsod"
     clean
 }

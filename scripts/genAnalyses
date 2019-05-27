@@ -39,7 +39,6 @@ genOccPlot()
 
     cd ./../"$dirEnv"/
     ./../Util/infoLog
-    cp ./../Util/"$fileStruct" ./
     cd ./../Util/
    
     while read line
@@ -55,7 +54,6 @@ genOccPlot()
 	    pathShort="./../$dirEnv/$execType/$dist/$edge"
 	    if [ "$execType" == "deft" ]
             then
-		#GRAFICO
 		pathLong="$pathShort/outputs/"
 		firstFile=$(ls "$pathLong"Opar* | sort -n | head -1)
 		rm -rf "$pathLong"*statOcc*
@@ -65,8 +63,6 @@ genOccPlot()
 		statFile=${statFile%.out}
 		genOccPlot "$statFile"
 		mv "$statFile".eps "$pathShort"
-		#IMAGEM
-		#GIF
 	    else
 		for ratio in $listRatios
 		do

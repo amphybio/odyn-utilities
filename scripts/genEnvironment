@@ -86,13 +86,13 @@ genDir() # arg[1]= dist.fsod | arg[2] = execution type (synt;degr;deft)| arg[3] 
 	    cd ./$edge/
 	    if [ "$2" == "deft" ]
 	    then
-		mkdir outputs logs
+		mkdir outputs logs animation
 		genInput "$dirDist" "$edge" "$2"		
 	    else
 	   	for ratio in $listRatios
 		do
 		    mkdir $ratio
-		    mkdir ./$ratio/outputs ./$ratio/logs
+		    mkdir ./$ratio/outputs ./$ratio/logs ./$ratio/animation
 		    genInput "$dirDist" "$edge" "$2" "$ratio"
 		done
 	    fi
