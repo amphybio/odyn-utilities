@@ -1,0 +1,30 @@
+#!/bin/bash
+
+#===============================================================================
+#
+#          FILE:  test.sh
+#
+#         USAGE:  ./test.sh
+#
+#   DESCRIPTION:
+#
+#       OPTIONS:  ---
+#  REQUIREMENTS:  ---
+#          BUGS:  ---
+#         NOTES:  ---
+#        AUTHOR:  Joe Brockmeier, jzb@zonker.net
+#       COMPANY:  Dissociated Press
+#       VERSION:  1.0
+#       CREATED:  05/25/2007 10:31:01 PM MDT
+#      REVISION:  ---
+#===============================================================================
+
+{
+    IN="$1".out
+    OUT="$1".gif
+    mkdir figures
+    gnuplot -e "inputfile='$IN'; outputfile='$OUT'" heatmapGIF.plt
+    x=$(ls -1v ./figures/*.gif)
+    convert -delay 10 $x -alpha remove -scale 780x720 ./"$1".gif
+    rm -rf figures
+}
