@@ -22,7 +22,7 @@
 {
 clean()
 {
-   rm -rf dist.fsod
+   rm -rf dist.fsod ratios.fsod
 }
 
 genOccPlot()
@@ -30,6 +30,22 @@ genOccPlot()
     IN="$1".out
     OUT="$1".eps
     gnuplot -e "inputfile='$IN'; outputfile='$OUT';" occupancyErrAvg.plt
+}
+genRatPlot()
+{
+    IN1="$1".out
+    OUT="$1".eps
+    gnuplot -e "inputfile='$IN1'; outputfile='$OUT';" occupancyErrRat.plt
+}
+genOccStat()
+{
+    firstFile=$(ls -1v "$1"Opar* | head -1)
+    rm -rf "$1"*statOcc*
+    numFiles=$(ls -dq "$1"Opar* | wc -l)
+    Rscript avrAndstdOcc.r "$firstFile" "$numFiles"
+    statFile=$(ls "$1"*statOcc* | head -1)
+    statFile=${statFile%.out}
+    genOccPlot "$statFile"
 }
     fileStruct=$1
     dirEnv=$(awk NR==1 "$fileStruct")	
@@ -54,21 +70,26 @@ genOccPlot()
 	    pathShort="./../$dirEnv/$execType/$dist/$edge"
 	    if [ "$execType" == "deft" ]
             then
-		pathLong="$pathShort/outputs/"
-		firstFile=$(ls "$pathLong"Opar* | sort -n | head -1)
-		rm -rf "$pathLong"*statOcc*
-		numFiles=$(ls -dq "$pathLong"Opar* | wc -l)
-		Rscript avrAndstdOcc.r "$firstFile" "$numFiles"
-		statFile=$(ls "$pathLong"*statOcc* | head -1)
-		statFile=${statFile%.out}
-		genOccPlot "$statFile"
-		mv "$statFile".eps "$pathShort"
-	    else
+		pathLong="$pathShort/outputs"
+		genOccStat "$pathLong/"
+		mv "$pathLong/"*.eps "$pathShort/"
+	    else		
 		for ratio in $listRatios
 		do
-		    pathLong="$pathShort/$ratio/outputs/"
-		    #Faz o q tem q fazer de calculo
+		    pathLong="$pathShort/$ratio/outputs"
+		    genOccStat "$pathLong/"
+		    mv "$pathLong/"*.eps "$pathShort/$ratio/"
+		    cp "$pathLong/"*statOcc*.out "$pathShort/" 
 		done
+		firstFile=$(ls -1v "$pathShort/"*statOcc* | head -1)
+		rm -rf "$pathShort/"*statRat*
+		numFiles=$(ls -dq "$pathShort/"*statOcc* | wc -l)
+		echo "$listRatios" > ratios.fsod		
+		Rscript avrAndstdRat.r "$firstFile" "$numFiles" "ratios.fsod"
+		rm -rf "$pathShort/"*statOcc*
+		statFile=$(ls "$pathShort/"*statRat* | head -1)
+		statFile=${statFile%.out}
+		genRatPlot "$statFile"
 	   fi
 	done
     done < "dist.fsod"
