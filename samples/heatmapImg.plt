@@ -1,5 +1,5 @@
 reset
-set term gif animate transparent size 780, 720
+set term postscript eps size 468, 432
 unset title
 unset key
 unset xtics
@@ -13,5 +13,5 @@ set cbrange [0:2] noreverse nowriteback
 set palette defined (0 "white", 1 "blue", 2 "red")
 i=0
 end_time = 94
-load "anime.gnuplot"
+load "animeEPS.gnuplot"
 set output

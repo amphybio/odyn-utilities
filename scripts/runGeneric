@@ -1,4 +1,5 @@
 #!/bin/bash
+
 #===============================================================================
 #
 #          FILE:  ---
@@ -46,31 +47,20 @@ clean()
 	do
             pathLong="$pathShort/$dist/$edge"
 	    for (( i=1; i<="$numExec"; i+="$increment"))
-	    do			
+	    do
+		# Inserir instruções entre as sequencias '###' para executar chamada na estrutura FSOD
 	        if [ "$execType" == "deft" ]
 	        then
-		    for (( j=i; j<i+"$increment"; j++))
-		    do
-                        ./odyn -o b -i -s "$pathLong/"par_"$dist"_"$edge".in par_"$execType"_"$dist"_"$edge"_"$j".out "$pathLong/"logs/par_"$execType"_"$dist"_"$edge"_"$j".log &
-		        sleep 5s
-		    done
-		    wait
-	            ./genAnimation Hpar_"$execType"_"$dist"_"$edge"_"$i"
-                    mv *par_"$execType"_"$dist"_"$edge"_*.out ./"$pathLong/"outputs/
-	            mv Hpar*.gif "./$pathLong/"animation
+		    ###
+
+		    ###
 	        else	        
 	            listRatios=$(sed -n "/$dist/{n;n;p}" "$pathShort/$dirEnv"_"$execType.fsod" )
 	            for ratio in $listRatios
 	            do
-	        	for (( j=i; j<i+"$increment"; j++))
-	        	do
-	        	    ./odyn -o b -i -s "$pathLong/$ratio/"par_"$dist"_"$edge"_"$ratio".in  par_"$execType"_"$dist"_"$edge"_"$ratio"_"$j".out  "$pathLong/$ratio/logs/"par_"$execType"_"$dist"_"$edge"_"$ratio"_"$j".log &
-	        	    sleep 5s
-	        	done
-	                wait
-	        	./genAnimation Hpar_"$execType"_"$dist"_"$edge"_"$ratio"_"$i"
-	        	mv *par_"$execType"_"$dist"_"$edge"_"$ratio"_*.out ./"$pathLong/$ratio/"outputs/
-	        	mv Hpar*.gif "./$pathLong/$ratio/"animation
+			###  
+
+			###
 	            done
 		fi
             done
@@ -78,3 +68,15 @@ clean()
     done < "dist.fsod"
     clean
 }
+
+#### Cria diretorio 'animation' e gera GIF [SYNT/DEFT]
+#./genAnimation ./"$pathLong/$ratio/"outputs/Hpar_"$execType"_"$dist"_"$edge"_"$ratio"_"$i"
+#mkdir ./"$pathLong/$ratio/"animation
+#mv ./"$pathLong/$ratio/"outputs/Hpar*.gif "./$pathLong/$ratio/"animation
+####
+
+#### Cria diretorio 'figures' e gera imagens EPS [SYNT/DEFT]
+#./genImage ./"$pathLong/$ratio/"outputs/Hpar_"$execType"_"$dist"_"$edge"_"$ratio"_"$i" Hpar_"$execType"_"$dist"_"$edge"_"$ratio"_"$i"
+#mkdir ./"$pathLong/$ratio/"figures
+#mv imgs_Hpar_"$execType"_"$dist"_"$edge"_"$ratio"_"$i"/ "$pathLong/$ratio/"figures/
+####
