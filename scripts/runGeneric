@@ -2,9 +2,9 @@
 
 #===============================================================================
 #
-#          FILE:  test.sh
+#          FILE:  ---
 #
-#         USAGE:  ./test.sh
+#         USAGE:  ---
 #
 #   DESCRIPTION:
 #
@@ -12,15 +12,22 @@
 #  REQUIREMENTS:  ---
 #          BUGS:  ---
 #         NOTES:  ---
-#        AUTHOR:  Joe Brockmeier, jzb@zonker.net
-#       COMPANY:  Dissociated Press
-#       VERSION:  1.0
-#       CREATED:  05/25/2007 10:31:01 PM MDT
+#        AUTHOR:  ---
+#       COMPANY:  ---
+#       VERSION:  ---
+#       CREATED:  ---
 #      REVISION:  ---
 #===============================================================================
 {
+clean()
+{
+   rm -rf dist.fsod
+}
     fileStruct=$1
     dirEnv=$(awk NR==1 "$fileStruct")
+    num=($(awk NR==2 "$fileStruct"))
+    numExec=${num[0]}
+    increment=${num[1]}
     execType=$(awk NR==3 "$fileStruct")
     
     awk "NR>3" "$fileStruct" > dist.fsod 
@@ -28,7 +35,7 @@
     cd ./../"$dirEnv"/
     ./../Util/infoLog
     cd ./../Util/
-
+    
     while read line
     do
         dist=$line
@@ -38,17 +45,30 @@
         pathShort="./../$dirEnv/$execType"      
 	for edge in $edges
 	do
-            pathLong="$pathShort/$dist/$edge"		
-	    if [ "$execType" == "deft" ]
-	    then
-		#CHAMMAAAA
-	    else	        
-	        listRatios=$(sed -n "/$dist/{n;n;p}" "$pathShort/$dirEnv"_"$execType.fsod" )
-	        for ratio in $listRatios
-	        do
-		    #CHAMMAAAAAAA
-		done
-	    fi
-        done
-    done < "dist.fsod"    
+            pathLong="$pathShort/$dist/$edge"
+	    for (( i=1; i<="$numExec"; i+="$increment"))
+	    do
+		# Inserir instruções entre as sequencias '###' para executar chamada na estrutura FSOD 
+	        if [ "$execType" == "deft" ]
+	        then
+		    ### Esta chamada cria diretorio 'animation' e gera GIF
+	            ./genAnimation ./"$pathLong/"outputs/Hpar_"$execType"_"$dist"_"$edge"_"$i"
+                    mkdir ./"$pathLong/"animation
+	            mv ./"$pathLong/$ratio/"outputs/Hpar*.gif "./$pathLong/"animation
+		    ###
+	        else	        
+	            listRatios=$(sed -n "/$dist/{n;n;p}" "$pathShort/$dirEnv"_"$execType.fsod" )
+	            for ratio in $listRatios
+	            do
+			### Esta chamada cria diretorio 'animation' e gera GIF
+	        	./genAnimation ./"$pathLong/$ratio/"outputs/Hpar_"$execType"_"$dist"_"$edge"_"$ratio"_"$i"
+	        	mkdir ./"$pathLong/$ratio/"animation
+	        	mv ./"$pathLong/$ratio/"outputs/Hpar*.gif "./$pathLong/$ratio/"animation
+			###
+	            done
+		fi
+            done
+	done
+    done < "dist.fsod"
+    clean
 }
