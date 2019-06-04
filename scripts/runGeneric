@@ -48,22 +48,18 @@ clean()
             pathLong="$pathShort/$dist/$edge"
 	    for (( i=1; i<="$numExec"; i+="$increment"))
 	    do
-		# Inserir instruções entre as sequencias '###' para executar chamada na estrutura FSOD 
+		# Inserir instruções entre as sequencias '###' para executar chamada na estrutura FSOD
 	        if [ "$execType" == "deft" ]
 	        then
-		    ### Esta chamada cria diretorio 'animation' e gera GIF
-	            ./genAnimation ./"$pathLong/"outputs/Hpar_"$execType"_"$dist"_"$edge"_"$i"
-                    mkdir ./"$pathLong/"animation
-	            mv ./"$pathLong/$ratio/"outputs/Hpar*.gif "./$pathLong/"animation
+		    ###
+
 		    ###
 	        else	        
 	            listRatios=$(sed -n "/$dist/{n;n;p}" "$pathShort/$dirEnv"_"$execType.fsod" )
 	            for ratio in $listRatios
 	            do
-			### Esta chamada cria diretorio 'animation' e gera GIF
-	        	./genAnimation ./"$pathLong/$ratio/"outputs/Hpar_"$execType"_"$dist"_"$edge"_"$ratio"_"$i"
-	        	mkdir ./"$pathLong/$ratio/"animation
-	        	mv ./"$pathLong/$ratio/"outputs/Hpar*.gif "./$pathLong/$ratio/"animation
+			###  
+
 			###
 	            done
 		fi
@@ -72,3 +68,15 @@ clean()
     done < "dist.fsod"
     clean
 }
+
+#### Cria diretorio 'animation' e gera GIF [SYNT/DEFT]
+#./genAnimation ./"$pathLong/$ratio/"outputs/Hpar_"$execType"_"$dist"_"$edge"_"$ratio"_"$i"
+#mkdir ./"$pathLong/$ratio/"animation
+#mv ./"$pathLong/$ratio/"outputs/Hpar*.gif "./$pathLong/$ratio/"animation
+####
+
+#### Cria diretorio 'figures' e gera imagens EPS [SYNT/DEFT]
+#./genImage ./"$pathLong/$ratio/"outputs/Hpar_"$execType"_"$dist"_"$edge"_"$ratio"_"$i" Hpar_"$execType"_"$dist"_"$edge"_"$ratio"_"$i"
+#mkdir ./"$pathLong/$ratio/"figures
+#mv imgs_Hpar_"$execType"_"$dist"_"$edge"_"$ratio"_"$i"/ "$pathLong/$ratio/"figures/
+####

@@ -1,0 +1,27 @@
+#!/bin/bash
+
+#===============================================================================
+#
+#          FILE:  ---
+#
+#         USAGE:  ---
+#
+#   DESCRIPTION:
+#
+#       OPTIONS:  ---
+#  REQUIREMENTS:  ---
+#          BUGS:  ---
+#         NOTES:  ---
+#        AUTHOR:  ---
+#       COMPANY:  ---
+#       VERSION:  ---
+#       CREATED:  ---
+#      REVISION:  ---
+#===============================================================================
+{
+    IN="$1".out
+    OUT="$1".eps
+    mkdir figures
+    gnuplot -e "inputfile='$IN'; outputfile='$OUT'" heatmapImg.plt
+    mv figures/ imgs_"$2"/ 
+}
